@@ -1,6 +1,38 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
-df = pd.read_csv('songs_normalize.csv')
+def artist_year_graph(csv_file_path):
+    """
+    input: file path
+    output: data frame
+    generates a graph of most popular artist per year
+    """
+    df = pd.read_csv(csv_file_path)
+    top_indices = df.groupby("year")["popularity"].idxmax()
+    top_artists_df = df.loc[top_indices, ["year", "artist"]].sort_values("year").reset_index(drop=True)
+    lines = []
+    for index, row in top_artists_df.iterrows():
+        line = f"{row['year']}: {row['artist']}"
+        lines.append(line)
+    full_text = "\n".join(lines)
+    fig, ax = plt.subplots(figsize=(8, len(lines) * 0.4))
+    fig.patch.set_facecolor('#e0f2ff') 
+    ax.set_facecolor('#e0f2ff')
+    ax.text(
+        0.5, 1, full_text,
+        fontsize=12,
+        va='top',
+        ha='center',
+        fontfamily='monospace',
+        transform=ax.transAxes  
+    )
+    ax.axis("off")
+    plt.title("Most Popular Artist Each Year (2000–2017)", fontsize=16, pad=20)
+    plt.tight_layout()
+    plt.show()
+artist_year_graph("songs_normalize.csv")
+
+
 
 '''
 First going to make a baseline for music popularity from 2000 to 2019. In this, we are specifically looking at 

@@ -80,8 +80,47 @@ We should have a chart showing each year's most popular artist and genre. For th
 
 
 
+
+#GENRE POPULARITY OVER TIME -----------------------------------------------------------------------------------------------
+def genre_popularity_over_time(csv_file_path):
+    """
+    Author: Samantha Cuenot
+    :param csv_file_path:
+    :return: graph showing popularity of genres over time
+    """
+    df = pd.read_csv(csv_file_path)
+
+    df['genre'] = df['genre'].str.split(', ')
+    df_exploded = df.explode("genre")
+    df_exploded_filter = df_exploded[(df_exploded['year'] >= 2000) & (df_exploded['year'] <= 2019)]
+
+    genre_popularity_by_year = df_exploded_filter.groupby(['genre', 'year'])['popularity'].sum().unstack(level=0).fillna(0)
+
+    plt.figure(figsize=(14, 8))
+    for genre in genre_popularity_by_year.columns:
+        plt.plot(genre_popularity_by_year.index, genre_popularity_by_year[genre], label=genre)
+
+    plt.title('Popularity of genres over time (2000-2019')
+    plt.xlabel('Year')
+    plt.ylabel('Total Popularity')
+    plt.legend(title='Genre', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+genre_popularity_over_time("songs_normalize.csv")
+
+#NOTES-------------------------------------------------------------------------------------------------------------
 '''
-Then, over the course of all 20 years, who is the most popular artist OVERALL and what is the most popular genre OVERALL?
+This shows the popularity of every genre over time, by adding together the popularity points from the data file. From the graph, we can see that pop is the most popular, so we'll focus on this genre when we look at other characteristics like danceability and tempo.
+'''
+
+
+
+
+
+
+'''
+Then, over the course of all 20 years, who is the most popular artist OVERALL? Whoever the most popular artist is overall, we'll look at the characteristics of their music (danceability, tempo, song duration, etc.)
 '''
 
 

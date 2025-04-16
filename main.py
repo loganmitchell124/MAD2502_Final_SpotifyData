@@ -5,9 +5,9 @@ df = pd.read_csv('songs_normalize.csv')
 '''
 First going to make a baseline for music popularity from 2000 to 2019. In this, we are specifically looking at 
     (1) most popular genre each year
-    (2) most popular artist each year
+    (2) most popular artist each year **logan is going to do this 4/15**
 We should have a chart showing each year's most popular artist and genre. For this, we are going to use the popularity values already provided and see which artist/genre has the greatest value.
-'''
+''' 
 
 
 

@@ -151,6 +151,9 @@ This shows the popularity of every genre over time, by adding together the popul
 '''
 
 
+
+
+#MOST POPULAR ARTIST-------------------------------------------------------------------------------------------------------------
 '''
 Then, over the course of all 20 years, who is the most popular artist OVERALL? Whoever the most popular artist is overall, we'll look at the characteristics of their music (danceability, tempo, song duration, etc.)
 '''

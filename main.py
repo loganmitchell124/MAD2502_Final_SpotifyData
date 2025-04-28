@@ -80,26 +80,29 @@ def open_dashboard_window(df):
         ("Top Artists", "top_artists_chart.png", explore_top_artist),
         ("Top Genres", "top_genres_chart.png", explore_top_genre),
         ("Listening Timeline", "listening_timeline.png", explore_listening_timeline),
-        ("Top Tracks", "top_tracks_chart.png", explore_top_tracks)
+        ("Top Tracks", "top_tracks_chart.png", lambda df: explore_top_tracks())
     ]
 
     for idx, (title, img_file, explore_func) in enumerate(charts):
         img = Image.open(img_file)
-        img = img.resize((400, 300))
+        img = img.resize((380, 280))  # Slightly smaller images
         img_tk = ImageTk.PhotoImage(img)
 
         card = tk.Frame(frame, bg="black", bd=2, relief="flat")
         card.grid(row=idx // 2, column=idx % 2, padx=20, pady=20)
 
         img_label = tk.Label(card, image=img_tk, bg="black")
-        img_label.image = img_tk
+        img_label.image = img_tk  # Keep a reference!
         img_label.pack()
 
         title_label = tk.Label(card, text=title, font=("Helvetica", 14, "bold"), fg="white", bg="black")
         title_label.pack(pady=5)
 
-        explore_button = tk.Button(card, text="Explore More", bg="#1DB954", fg="black", font=("Helvetica", 10), command=lambda f=explore_func: f(df))
-        explore_button.pack(pady=5)
+        # Correctly bind the explore function
+        explore_button = tk.Button(card, text="Explore More", bg="#1DB954", fg="black", font=("Helvetica", 10),
+                                   command=lambda explore_func=explore_func: explore_func(df))
+        explore_button.pack(pady=10)
+
 
 # --- EXPLORE FUNCTIONS ---
 def explore_top_artist(df):
@@ -191,7 +194,25 @@ def explore_listening_timeline(df):
 
 
 def explore_top_tracks(df):
-    pass
+    window = tk.Toplevel()
+    window.title("Explore Top Tracks")
+    window.geometry("700x400")
+    window.configure(bg="black")
+
+    info_message = (
+        "Have you wondered that if chosen a song at random,\n"
+        "given its attribute of your choice,\n"
+        "what is the probability that it will be a song from X artist or Y period?\n\n"
+        "(Think about what we learned in Probability class!)"
+    )
+
+    label = tk.Label(window, text=info_message, font=("Helvetica", 16), fg="white", bg="black", justify="center")
+    label.pack(pady=60)
+
+    close_button = tk.Button(window, text="Close", command=window.destroy,
+                             bg="#1DB954", fg="black", font=("Helvetica", 12))
+    close_button.pack(pady=20)
+
 
 # --- ERROR HANDLER ---
 def show_error_popup(message):
@@ -201,4 +222,3 @@ def show_error_popup(message):
     error_window.configure(bg="black")
     tk.Label(error_window, text=message, font=("Helvetica", 14), fg="red", bg="black").pack(pady=40)
     tk.Button(error_window, text="Close", command=error_window.destroy, bg="#1DB954", fg="black", font=("Helvetica", 12)).pack(pady=10)
-

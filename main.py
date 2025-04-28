@@ -5,17 +5,30 @@ import seaborn as sns
 import tkinter as tk
 from tkinter import simpledialog
 from PIL import Image, ImageTk
+from functools import partial
 
 # --- MAIN ENTRY POINT ---
 def run_main_program():
     csv_path = "songs_normalize.csv"
     df = pd.read_csv(csv_path)
 
+    root = tk.Tk()
+    root.withdraw()
+
     generate_all_charts(df)
     open_dashboard_window(df)
 
+    root.mainloop()
+
+
 # --- GENERATE DASHBOARD CHARTS ---
 def generate_all_charts(df):
+    """
+    Author: Minh Anh Do
+    There are different charts that our program can generate
+    For each chart, users can select the input of their choice and generate graphs from different input
+
+    """
     # Top Artists
     top_artists = df.groupby('artist')['popularity'].mean().sort_values(ascending=False).head(5)
     fig, ax = plt.subplots(figsize=(4, 4))
@@ -65,6 +78,11 @@ def generate_all_charts(df):
 
 # --- OPEN DASHBOARD ---
 def open_dashboard_window(df):
+    """
+    Author: Minh Anh Do
+    From the charts that generate, format and provide the interface
+
+    """
     window = tk.Toplevel()
     window.title("Spotify Interactive Dashboard - Explore Datasets")
     window.geometry("1200x800")
@@ -77,35 +95,42 @@ def open_dashboard_window(df):
     frame.pack(padx=20, pady=10)
 
     charts = [
-        ("Top Artists", "top_artists_chart.png", explore_top_artist),
-        ("Top Genres", "top_genres_chart.png", explore_top_genre),
         ("Listening Timeline", "listening_timeline.png", explore_listening_timeline),
-        ("Top Tracks", "top_tracks_chart.png", lambda df: explore_top_tracks())
+        ("Top Tracks", "top_tracks_chart.png", explore_top_tracks),
+        ("Top Artists", "top_artists_chart.png", explore_top_artist),
+        ("Top Genres", "top_genres_chart.png", explore_top_genre)
     ]
 
     for idx, (title, img_file, explore_func) in enumerate(charts):
         img = Image.open(img_file)
-        img = img.resize((380, 280))  # Slightly smaller images
+        img = img.resize((380, 280))
         img_tk = ImageTk.PhotoImage(img)
 
         card = tk.Frame(frame, bg="black", bd=2, relief="flat")
         card.grid(row=idx // 2, column=idx % 2, padx=20, pady=20)
 
         img_label = tk.Label(card, image=img_tk, bg="black")
-        img_label.image = img_tk  # Keep a reference!
+        img_label.image = img_tk
         img_label.pack()
 
         title_label = tk.Label(card, text=title, font=("Helvetica", 14, "bold"), fg="white", bg="black")
         title_label.pack(pady=5)
 
-        # Correctly bind the explore function
         explore_button = tk.Button(card, text="Explore More", bg="#1DB954", fg="black", font=("Helvetica", 10),
-                                   command=lambda explore_func=explore_func: explore_func(df))
+                                   command=partial(explore_func, df))
+
         explore_button.pack(pady=10)
 
+    window.mainloop()
 
 # --- EXPLORE FUNCTIONS ---
 def explore_top_artist(df):
+    """
+    Author: Minh Anh Do
+    For each explore button, users will be able to navigate to different graphing features
+
+    """
+
     artist_name = simpledialog.askstring("Explore Top Artist", "Enter artist name:")
     if not artist_name:
         return
@@ -138,8 +163,13 @@ def explore_top_artist(df):
 
     tk.Button(result_window, text="Close", command=result_window.destroy, bg="#1DB954", fg="black", font=("Helvetica", 12)).pack(pady=20)
 
-
 def explore_top_genre(df):
+    """
+    Author: Minh Anh Do
+    For each explore button, users will be able to navigate to different graphing features
+
+    """
+
     period_input = simpledialog.askstring("Explore Top Genre", "Enter a year (e.g., 2015) or decade (e.g., 2010s):")
     if not period_input:
         return
@@ -188,30 +218,164 @@ def explore_top_genre(df):
     close_button = tk.Button(result_window, text="Close", command=result_window.destroy, bg="#1DB954", fg="black", font=("Helvetica", 12))
     close_button.pack(pady=10)
 
-
 def explore_listening_timeline(df):
-    pass
+    """
+    Author: Minh Anh Do
+    For each explore button, users will be able to navigate to different graphing features
+
+    """
+
+    # List of allowed attributes
+    attributes = [
+        'danceability', 'energy', 'loudness', 'speechiness',
+        'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'
+    ]
+
+    # Pop-up asking user for two variables
+    var1 = simpledialog.askstring(
+        "Select First Variable",
+        f"Choose the first attribute:\n{', '.join(attributes)}"
+    )
+    if not var1 or var1 not in attributes:
+        show_error_popup("Invalid first variable selected!")
+        return
+
+    var2 = simpledialog.askstring(
+        "Select Second Variable",
+        f"Choose the second attribute:\n{', '.join(attributes)}"
+    )
+    if not var2 or var2 not in attributes:
+        show_error_popup("Invalid second variable selected!")
+        return
+
+    # Scatterplot
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(data=df, x=var1, y=var2, alpha=0.6)
+    plt.title(f"Relationship Between {var1.capitalize()} and {var2.capitalize()}")
+    plt.xlabel(var1.capitalize())
+    plt.ylabel(var2.capitalize())
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save figure
+    fig.savefig("relationship_plot.png")
+    plt.close(fig)
+
+    # Show in popup window
+    result_window = tk.Toplevel()
+    result_window.title(f"{var1.capitalize()} vs {var2.capitalize()}")
+    result_window.geometry("750x600")
+    result_window.configure(bg="black")
+
+    img = Image.open("relationship_plot.png")
+    img = img.resize((650, 500))
+    img_tk = ImageTk.PhotoImage(img)
+
+    img_label = tk.Label(result_window, image=img_tk, bg="black")
+    img_label.image = img_tk
+    img_label.pack(pady=20)
+
+    close_button = tk.Button(result_window, text="Close", command=result_window.destroy,
+                             bg="#1DB954", fg="black", font=("Helvetica", 12))
+    close_button.pack(pady=10)
 
 
 def explore_top_tracks(df):
-    window = tk.Toplevel()
-    window.title("Explore Top Tracks")
-    window.geometry("700x400")
-    window.configure(bg="black")
+    """
+    Author: Minh Anh Do
+    For each explore button, users will be able to navigate to different graphing features
 
-    info_message = (
-        "Have you wondered that if chosen a song at random,\n"
-        "given its attribute of your choice,\n"
-        "what is the probability that it will be a song from X artist or Y period?\n\n"
-        "(Think about what we learned in Probability class!)"
-    )
+    """
+    # First, show a popup message explaining
+    info_window = tk.Toplevel()
+    info_window.title("Top Tracks - Probability Explorer")
+    info_window.geometry("600x300")
+    info_window.configure(bg="black")
 
-    label = tk.Label(window, text=info_message, font=("Helvetica", 16), fg="white", bg="black", justify="center")
-    label.pack(pady=60)
+    info_label = tk.Label(info_window, text="Have you wondered?\n\n"
+                                            "If you pick a song at random, given its attribute of your choice,\n"
+                                            "what is the probability it will be from a certain artist\n"
+                                            "or from a certain time period?",
+                           font=("Helvetica", 14), fg="#1DB954", bg="black", wraplength=550, justify="center")
+    info_label.pack(pady=40)
 
-    close_button = tk.Button(window, text="Close", command=window.destroy,
-                             bg="#1DB954", fg="black", font=("Helvetica", 12))
-    close_button.pack(pady=20)
+    continue_button = tk.Button(info_window, text="Start Exploring!", bg="#1DB954", fg="black",
+                                font=("Helvetica", 12), command=info_window.destroy)
+    continue_button.pack(pady=10)
+
+    info_window.wait_window()  # Pause here until the user closes the info window
+
+    # Now ask the user for input
+    attributes = ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness',
+                  'instrumentalness', 'liveness', 'valence', 'tempo']
+
+    attr = simpledialog.askstring("Select Attribute", f"Choose an attribute:\n{', '.join(attributes)}")
+    if not attr or attr not in attributes:
+        show_error_popup("Invalid attribute selected!")
+        return
+
+    mode = simpledialog.askstring("Probability Type", "Type 'artist' to analyze by artist,\nor 'period' to analyze by year or decade:")
+    if not mode or mode.lower() not in ['artist', 'period']:
+        show_error_popup("Invalid choice! Must be 'artist' or 'period'.")
+        return
+
+    if mode.lower() == 'artist':
+        target = simpledialog.askstring("Target Artist", "Enter the artist name:")
+        if not target:
+            show_error_popup("No artist entered!")
+            return
+        subset = df[df['artist'].str.lower() == target.lower()]
+    else:
+        period_input = simpledialog.askstring("Target Period", "Enter a year (e.g., 2015) or decade (e.g., 2010s):")
+        if not period_input:
+            show_error_popup("No period entered!")
+            return
+        try:
+            if period_input.endswith('s'):
+                decade = int(period_input[:-1])
+                subset = df[(df['year'] >= decade) & (df['year'] < decade + 10)]
+            else:
+                year = int(period_input)
+                subset = df[df['year'] == year]
+        except ValueError:
+            show_error_popup("Invalid period input!")
+            return
+
+    # Now filter songs that meet the attribute condition
+    attr_values = df[attr].dropna()
+
+    # Overall probability: choosing a random song from the whole dataset
+    total_songs = len(df)
+
+    # Conditional probability: choosing a song that matches user condition
+    matching_songs = len(subset)
+
+    if matching_songs == 0:
+        show_error_popup(f"No matching songs found for '{target if mode=='artist' else period_input}'!")
+        return
+
+    probability = matching_songs / total_songs
+
+    # Show result
+    result_window = tk.Toplevel()
+    result_window.title("Probability Result")
+    result_window.geometry("600x300")
+    result_window.configure(bg="black")
+
+    result_text = (f"Conditional Probability Result\n\n"
+                   f"Selected attribute: {attr}\n"
+                   f"Mode: {mode.title()}\n"
+                   f"Target: {target if mode == 'artist' else period_input}\n\n"
+                   f"Probability = {matching_songs} / {total_songs}\n\n"
+                   f"≈ {probability:.4f}")
+
+    result_label = tk.Label(result_window, text=result_text, font=("Helvetica", 14),
+                            fg="#1DB954", bg="black", wraplength=550, justify="center")
+    result_label.pack(pady=40)
+
+    close_button = tk.Button(result_window, text="Close", bg="#1DB954", fg="black",
+                             font=("Helvetica", 12), command=result_window.destroy)
+    close_button.pack(pady=10)
 
 
 # --- ERROR HANDLER ---

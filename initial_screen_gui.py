@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from personal_data import *
+from main import *
 
 
 #MAIN PAGE --------------------------------------------------------------------------------------------------------------------------------------------
@@ -108,6 +109,14 @@ def open_explore_dataset():
     Author: Samantha Cuenot
     Creates the page if the user selects to explore the provided dataset
     """
+
+    def handle_year_data():
+        artist_year_graph("songs_normalize.csv")
+        genre_year_graph("songs_normalize.csv")
+
+    def handle_genre_popularity():
+        genre_popularity_over_time("songs_normalize.csv")
+
     explore_window = tk.Toplevel()
     explore_window.title("Explore Dataset Options")
     explore_window.geometry("400x400")
@@ -133,8 +142,8 @@ def open_explore_dataset():
     style.map("Green.TButton", background=[('active', '#388e3d')])
 
     btn_width = 50
-    btn_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist and genre each year", style="Green.TButton", width=btn_width)
-    btn_genre_pop = ttk.Button(explore_window, text="2. Look at the popularity of genres over time", style="Green.TButton", width=btn_width)
+    btn_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist and genre each year", style="Green.TButton", width=btn_width, command=handle_year_data)
+    btn_genre_pop = ttk.Button(explore_window, text="2. Look at the popularity of genres over time", style="Green.TButton", width=btn_width, command=handle_genre_popularity)
     btn_fav_artist = ttk.Button(explore_window, text="3. Learn more about your favorite artist", style="Green.TButton", width=btn_width)
     btn_relationships = ttk.Button(explore_window, text="4. Explore relationships between song characteristics", style="Green.TButton", width=btn_width)
     btn_summarize = ttk.Button(explore_window, text="5. Summarize the dataset", style="Green.TButton", width=btn_width)
@@ -152,6 +161,7 @@ def open_explore_dataset():
         width=15
     )
     back_button.pack(pady=20)
+
 
 
 

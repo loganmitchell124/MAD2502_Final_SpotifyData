@@ -2,6 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import squarify
+import tkinter as tk
+from PIL import Image, ImageTk
+
 
 # SUMMARY OF DATA -----------------------------------------------------------------------------------------------
 def summarize_song_dataset(csv_file_path):
@@ -30,7 +33,6 @@ def summarize_song_dataset(csv_file_path):
     print(f"🎼 Number of Unique Genres: {len(genre_list)}")
     print(f"🎧 Genres Included: {', '.join(genre_list)}")
     print(f"🔊 Musical Attributes: {', '.join(music_attributes)}")
-summarize_song_dataset("songs_normalize.csv")
 
 # NOTES -----------------------------------------------------------------------------------------------
 """ The code above will show the summary of data set 'songs_normalize' 
@@ -38,6 +40,10 @@ summarize_song_dataset("songs_normalize.csv")
 
 """ It will be useful for some features implemented later which will ask for input
     The output will vary based on users' input """
+
+
+
+
 
 #YEAR -----------------------------------------------------------------------------------------------
 def artist_year_graph(csv_file_path):
@@ -69,8 +75,29 @@ def artist_year_graph(csv_file_path):
     axis.axis("off")
     plt.title("Most Popular Artist Each Year (2000–2017)", fontsize=16, pad=20)
     plt.tight_layout()
-    plt.show()
-artist_year_graph("songs_normalize.csv")
+
+    figure.savefig("artist_year_graph.png")
+    plt.close(figure)
+
+    img_window = tk.Toplevel()
+    img_window.title("Most Popular Artist Each Year")
+    img_window.geometry("850x700")
+    img_window.configure(bg='#2e2e2e')
+
+    img = Image.open("artist_year_graph.png")
+    img = img.resize((800, 600))
+    img_tk = ImageTk.PhotoImage(img)
+
+    label = tk.Label(img_window, image=img_tk, bg='#2e2e2e')
+    label.image = img_tk
+    label.pack(pady=20)
+
+    close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
+    close_button.pack(pady=10)
+
+
+
+
 
 
 #GENRE-----------------------------------------------------------------------------------------------
@@ -105,8 +132,28 @@ def genre_year_graph(csv_file_path):
     axis.axis("off")
     plt.title("Most Popular Genre Each Year (2000-2017)", fontsize=16, pad=20)
     plt.tight_layout()
-    plt.show()
-genre_year_graph("songs_normalize.csv")
+
+    figure.savefig("genre_year_graph.png")
+    plt.close(figure)
+
+    img_window = tk.Toplevel()
+    img_window.title("Most Popular Genre Each Year")
+    img_window.geometry("850x700")
+    img_window.configure(bg='#2e2e2e')
+
+    img = Image.open("genre_year_graph.png")
+    img = img.resize((800, 600))
+    img_tk = ImageTk.PhotoImage(img)
+
+    label = tk.Label(img_window, image=img_tk, bg='#2e2e2e')
+    label.image = img_tk
+    label.pack(pady=20)
+
+    close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
+    close_button.pack(pady=10)
+
+
+
 
 #NOTES-------------------------------------------------------------------------------------------------------------
 '''
@@ -115,6 +162,9 @@ First going to make a baseline for music popularity from 2000 to 2019. In this, 
     (2) most popular artist each year **logan is going to do this 4/15**
 We should have a chart showing each year's most popular artist and genre. For this, we are going to use the popularity values already provided and see which artist/genre has the greatest value.
 ''' 
+
+
+
 
 
 #GENRE POPULARITY OVER TIME -----------------------------------------------------------------------------------------------
@@ -132,18 +182,37 @@ def genre_popularity_over_time(csv_file_path):
 
     genre_popularity_by_year = df_exploded_filter.groupby(['genre', 'year'])['popularity'].sum().unstack(level=0).fillna(0)
 
-    plt.figure(figsize=(14, 8))
+    figure, axis = plt.subplots(figsize=(14, 8))
     for genre in genre_popularity_by_year.columns:
-        plt.plot(genre_popularity_by_year.index, genre_popularity_by_year[genre], label=genre)
+        axis.plot(genre_popularity_by_year.index, genre_popularity_by_year[genre], label=genre)
 
-    plt.title('Popularity of genres over time (2000-2019')
-    plt.xlabel('Year')
-    plt.ylabel('Total Popularity')
-    plt.legend(title='Genre', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1)
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-genre_popularity_over_time("songs_normalize.csv")
+    axis.set_title('Popularity of genres over time (2000-2019')
+    axis.set_xlabel('Year')
+    axis.set_ylabel('Total Popularity')
+    axis.legend(title='Genre', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1)
+    axis.grid(True)
+    figure.tight_layout()
+
+    figure.savefig("genre_popularity.png")
+    plt.close(figure)
+
+    img_window = tk.Toplevel()
+    img_window.title("Most Popular Artist Each Year")
+    img_window.geometry("850x700")
+    img_window.configure(bg='#2e2e2e')
+
+    img = Image.open("genre_popularity.png")
+    img = img.resize((800, 600))
+    img_tk = ImageTk.PhotoImage(img)
+
+    label = tk.Label(img_window, image=img_tk, bg='#2e2e2e')
+    label.image = img_tk
+    label.pack(pady=20)
+
+    close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
+    close_button.pack(pady=10)
+
+
 
 #NOTES-------------------------------------------------------------------------------------------------------------
 '''
@@ -153,19 +222,11 @@ This shows the popularity of every genre over time, by adding together the popul
 
 
 
-#MOST POPULAR ARTIST-------------------------------------------------------------------------------------------------------------
+#FAVORITE ARTIST-------------------------------------------------------------------------------------------------------------
 '''
-Then, over the course of all 20 years, who is the most popular artist OVERALL? Whoever the most popular artist is overall, we'll look at the characteristics of their music (danceability, tempo, song duration, etc.)
+Here, we take into account the user's favorite artist and take in generalize all of their data. 
 '''
 
-
-'''
-For the most popular artist and genre OVERALL, what is the average
-    - Danceability
-    - Tempo
-    - Duration of their music (for artist specifically)
-    
-'''
 
 
 # EXPECTED COUNT -----------------------------------------------------------------------------------------------
@@ -229,7 +290,6 @@ def genre_artist_distribution(csv_file_path):
     plt.tight_layout()
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.show()
-genre_artist_distribution("songs_normalize.csv")
 
 #NOTES-------------------------------------------------------------------------------------------------------------
 ''' This function analyzes music data to show two main visualizations:
@@ -245,6 +305,10 @@ genre_artist_distribution("songs_normalize.csv")
    - It then displays the probability distribution of artists within that genre.
    - This answers the question:
      > "If a song is randomly picked from genre Y in time T, what is the probability that it is by artist X?" '''
+
+
+
+
 
 # SCATTERPLOT - RELATIONSHIP?
 def relationship_between_variables(csv_file_path):
@@ -332,8 +396,6 @@ def relationship_between_variables(csv_file_path):
     plt.tight_layout()
     plt.show()
 
-# summarize_song_dataset('songs_normalize.csv')
-relationship_between_variables('songs_normalize.csv')
 
 
 #NOTES-------------------------------------------------------------------------------------------------------------

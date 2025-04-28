@@ -1,4 +1,6 @@
 import json
+from tkinter import filedialog
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -8,7 +10,13 @@ def import_json_from_user():
     Author: Samantha Cuenot
     Summary: takes user spotify input and converts it to json
     """
-    file_path = input("Please enter the path to the json file: ")
+    file_path = filedialog.askopenfilename(
+        title="Select your Spotify JSON File",
+        filetypes=(("JSON Files", "*.json"),)
+    )
+    if not file_path:
+        return None
+
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
@@ -52,7 +60,3 @@ def plot_top_artists(data, top_n = 10):
     plt.gca().invert_yaxis()
     plt.tight_layout()
     plt.show()
-
-spotify_data = import_json_from_user()
-if spotify_data:
-    plot_top_artists(spotify_data)

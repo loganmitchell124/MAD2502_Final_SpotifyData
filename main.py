@@ -1,5 +1,4 @@
 from tkinter import simpledialog
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -43,6 +42,58 @@ def summarize_song_dataset(csv_file_path):
     The output will vary based on users' input """
 
 
+
+def show_slideshow(image_paths, titles):
+    """
+    Show more than one image in single window
+    """
+    slideshow_window = tk.Toplevel()
+    slideshow_window.title("Relationships Between Variables")
+    slideshow_window.geometry("400x400")
+    slideshow_window.configure(bg="#2e2e2e")
+
+    images = []
+    for path in image_paths:
+        img = Image.open(path)
+        img = img.resize((300, 300))
+        images.append(ImageTk.PhotoImage(img))
+
+    current_index = tk.IntVar(value=0)
+
+    title_label = tk.Label(slideshow_window, text=titles[0], font=("Helvetica", 12), bg="#2e2e2e", fg="white", pady=10)
+    title_label.pack()
+
+    image_label = tk.Label(slideshow_window, image=images[0], bg="#2e2e2e")
+    image_label.pack(pady=10)
+
+    def show_image(index):
+        image_label.config(image=images[index])
+        image_label.image = images[index]
+        title_label.config(text=titles[index])
+
+    def next_image():
+        idx = current_index.get()
+        if idx < len(images) - 1:
+            current_index.set(idx + 1)
+            show_image(current_index.get())
+
+    def prev_image():
+        idx = current_index.get()
+        if idx > 0:
+            current_index.set(idx - 1)
+            show_image(current_index.get())
+
+    button_frame = tk.Frame(slideshow_window, bg="#2e2e2e")
+    button_frame.pack(pady=10)
+
+    back_button = tk.Button(button_frame, text="Back", command=prev_image, bg='#2e7d32', fg='black', font=("Helvetica", 12), width=10)
+    back_button.grid(row=0, column=0, padx=10)
+
+    next_button = tk.Button(button_frame, text='Next', command=next_image, bg='#2e7d32', fg='black', font=("Helvetica", 12),width=10)
+    next_button.grid(row=0, column=1, padx=10)
+
+    close_button = tk.Button(slideshow_window, text="Close", bg='#2e7d32', fg='black', font=("Helvetica", 12), command=slideshow_window.destroy)
+    close_button.pack(pady=10)
 
 
 
@@ -347,57 +398,6 @@ def genre_artist_distribution(csv_file_path):
      > "If a song is randomly picked from genre Y in time T, what is the probability that it is by artist X?" '''
 
 
-def show_slideshow(image_paths, titles):
-    """
-    Show more than one image in single window
-    """
-    slideshow_window = tk.Toplevel()
-    slideshow_window.title("Relationships Between Variables")
-    slideshow_window.geometry("400x400")
-    slideshow_window.configure(bg="#2e2e2e")
-
-    images = []
-    for path in image_paths:
-        img = Image.open(path)
-        img = img.resize((300, 300))
-        images.append(ImageTk.PhotoImage(img))
-
-    current_index = tk.IntVar(value=0)
-
-    title_label = tk.Label(slideshow_window, text=titles[0], font=("Helvetica", 12), bg="#2e2e2e", fg="white", pady=10)
-    title_label.pack()
-
-    image_label = tk.Label(slideshow_window, image=images[0], bg="#2e2e2e")
-    image_label.pack(pady=10)
-
-    def show_image(index):
-        image_label.config(image=images[index])
-        image_label.image = images[index]
-        title_label.config(text=titles[index])
-
-    def next_image():
-        idx = current_index.get()
-        if idx < len(images) - 1:
-            current_index.set(idx + 1)
-            show_image(current_index.get())
-
-    def prev_image():
-        idx = current_index.get()
-        if idx > 0:
-            current_index.set(idx - 1)
-            show_image(current_index.get())
-
-    button_frame = tk.Frame(slideshow_window, bg="#2e2e2e")
-    button_frame.pack(pady=10)
-
-    back_button = tk.Button(button_frame, text="Back", command=prev_image, bg='#2e7d32', fg='black', font=("Helvetica", 12), width=10)
-    back_button.grid(row=0, column=0, padx=10)
-
-    next_button = tk.Button(button_frame, text='Next', command=next_image, bg='#2e7d32', fg='black', font=("Helvetica", 12),width=10)
-    next_button.grid(row=0, column=1, padx=10)
-
-    close_button = tk.Button(slideshow_window, text="Close", bg='#2e7d32', fg='black', font=("Helvetica", 12), command=slideshow_window.destroy)
-    close_button.pack(pady=10)
 
 
 

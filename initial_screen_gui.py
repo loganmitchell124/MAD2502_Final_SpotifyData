@@ -78,7 +78,7 @@ def about_the_project():
 
     summary_text = (
         "The Spotify Data Explorer is an interactive tool designed to help users explore musical trends, genres, artists, and popularity over time.\n\n"
-        "Users can either upload their own personal Spotify Data or use data on Billboard's top 100 from 2000-2019"
+        "Users can either upload their own personal Spotify Data or use data on Billboard's top 100 from 1998-2020"
     )
 
     summary_label = tk.Label(
@@ -110,8 +110,10 @@ def open_explore_dataset():
     Creates the page if the user selects to explore the provided dataset
     """
 
-    def handle_year_data():
+    def handle_artist_year_data():
         artist_year_graph("songs_normalize.csv")
+
+    def handle_genre_year_data():
         genre_year_graph("songs_normalize.csv")
 
     def handle_genre_popularity():
@@ -148,12 +150,14 @@ def open_explore_dataset():
     style.map("Green.TButton", background=[('active', '#388e3d')])
 
     btn_width = 50
-    btn_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist and genre each year", style="Green.TButton", width=btn_width, command=handle_year_data)
-    btn_genre_pop = ttk.Button(explore_window, text="2. Look at the popularity of genres over time", style="Green.TButton", width=btn_width, command=handle_genre_popularity)
-    btn_fav_artist = ttk.Button(explore_window, text="3. Learn more about your favorite artist", style="Green.TButton", width=btn_width, command=handle_fav_artist)
-    btn_relationships = ttk.Button(explore_window, text="4. Explore relationships between song characteristics", style="Green.TButton", width=btn_width, command=handle_relationships)
+    btn_artist_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist each year", style="Green.TButton", width=btn_width, command=handle_artist_year_data)
+    btn_genre_year_data = ttk.Button(explore_window, text="2. Look at the most popular genre each year", style="Green.TButton", width=btn_width, command=handle_genre_year_data)
+    btn_genre_pop = ttk.Button(explore_window, text="3. Look at the popularity of genres over time", style="Green.TButton", width=btn_width, command=handle_genre_popularity)
+    btn_fav_artist = ttk.Button(explore_window, text="4. Learn more about your favorite artist", style="Green.TButton", width=btn_width, command=handle_fav_artist)
+    btn_relationships = ttk.Button(explore_window, text="5. Explore relationships between song characteristics", style="Green.TButton", width=btn_width, command=handle_relationships)
 
-    btn_year_data.pack(pady=8)
+    btn_artist_year_data.pack(pady=8)
+    btn_genre_year_data.pack(pady=8)
     btn_genre_pop.pack(pady=8)
     btn_fav_artist.pack(pady=8)
     btn_relationships.pack(pady=8)

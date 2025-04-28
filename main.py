@@ -264,7 +264,10 @@ def favorite_artist(csv_file_path):
 
     close_button = tk.Button(stats_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=stats_window.destroy)
     close_button.pack(pady=10)
-
+#NOTES-------------------------------------------------------------------------------------------------------------
+'''
+Gathers data on the user's favorite artist and displays it.
+'''
 
 
 
@@ -275,7 +278,6 @@ def genre_artist_distribution(csv_file_path):
     :param csv_file_path: Path to the CSV file
 
     """
-
     df = pd.read_csv(csv_file_path)
     df = df.dropna(subset=['genre', 'artist', 'year']).copy()
     df['genre'] = df['genre'].str.lower().str.split(', ')
@@ -345,6 +347,57 @@ def genre_artist_distribution(csv_file_path):
      > "If a song is randomly picked from genre Y in time T, what is the probability that it is by artist X?" '''
 
 
+def show_slideshow(image_paths, titles):
+    """
+    Show more than one image in single window
+    """
+    slideshow_window = tk.Toplevel()
+    slideshow_window.title("Relationships Between Variables")
+    slideshow_window.geometry("400x400")
+    slideshow_window.configure(bg="#2e2e2e")
+
+    images = []
+    for path in image_paths:
+        img = Image.open(path)
+        img = img.resize((300, 300))
+        images.append(ImageTk.PhotoImage(img))
+
+    current_index = tk.IntVar(value=0)
+
+    title_label = tk.Label(slideshow_window, text=titles[0], font=("Helvetica", 12), bg="#2e2e2e", fg="white", pady=10)
+    title_label.pack()
+
+    image_label = tk.Label(slideshow_window, image=images[0], bg="#2e2e2e")
+    image_label.pack(pady=10)
+
+    def show_image(index):
+        image_label.config(image=images[index])
+        image_label.image = images[index]
+        title_label.config(text=titles[index])
+
+    def next_image():
+        idx = current_index.get()
+        if idx < len(images) - 1:
+            current_index.set(idx + 1)
+            show_image(current_index.get())
+
+    def prev_image():
+        idx = current_index.get()
+        if idx > 0:
+            current_index.set(idx - 1)
+            show_image(current_index.get())
+
+    button_frame = tk.Frame(slideshow_window, bg="#2e2e2e")
+    button_frame.pack(pady=10)
+
+    back_button = tk.Button(button_frame, text="Back", command=prev_image, bg='#2e7d32', fg='black', font=("Helvetica", 12), width=10)
+    back_button.grid(row=0, column=0, padx=10)
+
+    next_button = tk.Button(button_frame, text='Next', command=next_image, bg='#2e7d32', fg='black', font=("Helvetica", 12),width=10)
+    next_button.grid(row=0, column=1, padx=10)
+
+    close_button = tk.Button(slideshow_window, text="Close", bg='#2e7d32', fg='black', font=("Helvetica", 12), command=slideshow_window.destroy)
+    close_button.pack(pady=10)
 
 
 
@@ -360,6 +413,7 @@ def relationship_between_variables(csv_file_path):
 
     Graphs include combo plots, scatterplots, grouped bar charts, and a treemap.
     """
+
     df = pd.read_csv(csv_file_path)
 
     # Drop missing values in relevant columns
@@ -368,25 +422,27 @@ def relationship_between_variables(csv_file_path):
     # Correlation heatmap between selected features
     features = ['valence', 'tempo', 'liveness', 'danceability', 'popularity']
     corr = df[features].corr()
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(corr, annot=True, cmap='coolwarm')
-    plt.title('Correlation Matrix Between Musical Attributes')
-    plt.tight_layout()
-    plt.show()
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+    ax.set_title('Correlation Matrix Between Musical Attributes')
+    fig.tight_layout()
+    fig.savefig('correlation_heatmap.png')
+    plt.close(fig)
 
     # Danceability vs Popularity Scatterplot
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(data=df, x='danceability', y='popularity', alpha=0.5)
-    plt.title('Danceability vs Popularity')
-    plt.tight_layout()
-    plt.show()
-
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(data=df, x='danceability', y='popularity', alpha=0.5, ax=ax)
+    ax.set_title('Danceability vs Popularity')
+    fig.tight_layout()
+    fig.savefig('danceability_vs_popularity.png')
+    plt.close(fig)
+    '''
     # Explicit vs Non-Explicit Genre Distribution Treemap
     df_exp = df.dropna(subset=['genre', 'explicit']).copy()
     df_exp['genre'] = df_exp['genre'].str.lower().str.split(', ')
     df_exp = df_exp.explode('genre')
     genre_explicit = df_exp.groupby(['explicit', 'genre']).size().reset_index(name='count')
-
+    
     # Get full genre set to ensure both plots share same axes
     all_genres = sorted(df_exp['genre'].dropna().unique())
 
@@ -403,23 +459,50 @@ def relationship_between_variables(csv_file_path):
         norm_sizes = [s / total for s in sizes if s > 0]
         filtered_labels = [f"{g}\n{round(c / total * 100)}%" for g, c in zip(data['genre'], sizes) if c > 0]
 
-        plt.figure(figsize=(8, 6))
-        squarify.plot(sizes=norm_sizes, label=filtered_labels, alpha=.8)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        squarify.plot(sizes=norm_sizes, label=filtered_labels, alpha=.8, ax=ax)
         title = 'Explicit Songs' if exp else 'Non-Explicit Songs'
-        plt.title(f"Genre Distribution: {title}")
+        ax.set_title(f"Genre Distribution: {title}")
         plt.axis('off')
-        plt.tight_layout()
-        plt.show()
+        fig.tight_layout()
 
-    # Energy vs Loudness and Danceability vs Tempo
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    sns.scatterplot(data=df, x='energy', y='loudness', ax=axes[0])
-    axes[0].set_title('Energy vs Loudness')
-    sns.scatterplot(data=df, x='danceability', y='tempo', ax=axes[1])
-    axes[1].set_title('Danceability vs Tempo')
-    plt.tight_layout()
-    plt.show()
+        file_name = f"tree_map{'explicit' if exp else 'non-explicit'}.png"
+        fig.savefig(file_name)
+        plt.close(fig)
+        show_image_in_window(file_name, f"Genre Treemap - {'Explicit' if exp else 'Non-explicit'} Songs")'''
 
+    # Energy vs Loudness
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(data=df, x='energy', y='loudness', alpha=0.5, ax=ax)
+    ax.set_title('Energy vs Loudness')
+    fig.tight_layout()
+    fig.savefig('energy_vs_loudness.png')
+    plt.close(fig)
+
+    # Danceability vs Tempo
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(data=df, x='danceability', y='tempo', ax=ax)
+    ax.set_title('Danceability vs Tempo')
+    fig.tight_layout()
+    fig.savefig('danceability_vs_tempo.png')
+    plt.close(fig)
+
+    image_paths = [
+        'correlation_heatmap.png',
+        'danceability_vs_popularity.png',
+        'energy_vs_loudness.png',
+        'danceability_vs_tempo.png',
+    ]
+    titles = [
+        "Correlation Heatmap",
+        "Danceability vs Popularity",
+        "Energy vs Loudness",
+        "Danceability vs Tempo",
+    ]
+
+    show_slideshow(image_paths, titles)
+
+'''
     # Grouped bar chart: Popularity over decade by genre
     df_decade = df_exp.dropna(subset=['year']).copy()
     df_decade['decade'] = (df_decade['year'] // 10) * 10
@@ -427,12 +510,15 @@ def relationship_between_variables(csv_file_path):
     df_filtered = df_decade[df_decade['genre'].isin(top_genres)]
 
     genre_decade_avg = df_filtered.groupby(['decade', 'genre'])['popularity'].mean().reset_index()
-    plt.figure(figsize=(12, 6))
+
+    fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(data=genre_decade_avg, x='decade', y='popularity', hue='genre')
-    plt.title('Average Popularity by Genre and Decade')
-    plt.ylabel('Average Popularity')
-    plt.tight_layout()
-    plt.show()
+    ax.set_title('Average Popularity by Genre and Decade')
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    fig.tight_layout()
+    fig.savefig('popularity_by_genre_decade.png')
+    plt.close(fig)
+    show_image_in_window('popularity_by_genre_decade.png', 'Popularity by Genre')'''
 #NOTES-------------------------------------------------------------------------------------------------------------
 ''' With valence, tempo, and liveness, predict aspects of a song's danceability and/or popularity
     - Is there a relationship any correlation between danceability and popularity? '''

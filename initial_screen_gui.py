@@ -120,6 +120,9 @@ def open_explore_dataset():
     def handle_fav_artist():
         favorite_artist("songs_normalize.csv")
 
+    def handle_relationships():
+        relationship_between_variables("songs_normalize.csv")
+
     explore_window = tk.Toplevel()
     explore_window.title("Explore Dataset Options")
     explore_window.geometry("400x400")
@@ -148,8 +151,7 @@ def open_explore_dataset():
     btn_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist and genre each year", style="Green.TButton", width=btn_width, command=handle_year_data)
     btn_genre_pop = ttk.Button(explore_window, text="2. Look at the popularity of genres over time", style="Green.TButton", width=btn_width, command=handle_genre_popularity)
     btn_fav_artist = ttk.Button(explore_window, text="3. Learn more about your favorite artist", style="Green.TButton", width=btn_width, command=handle_fav_artist)
-    btn_relationships = ttk.Button(explore_window, text="4. Explore relationships between song characteristics", style="Green.TButton", width=btn_width)
-    btn_summarize = ttk.Button(explore_window, text="5. Summarize the dataset", style="Green.TButton", width=btn_width)
+    btn_relationships = ttk.Button(explore_window, text="4. Explore relationships between song characteristics", style="Green.TButton", width=btn_width, command=handle_relationships)
 
     btn_year_data.pack(pady=8)
     btn_genre_pop.pack(pady=8)

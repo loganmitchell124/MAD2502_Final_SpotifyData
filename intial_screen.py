@@ -49,7 +49,14 @@ def explore_data_sets():
     mainmenu.run_main_program()
 
 def analyze_own_data():
-    messagebox.showinfo("Analyze Your Own Data", "Placeholder: Upload and analyze your own Spotify data!")
+    from personal_data import import_json_from_user, plot_top_artists
+
+    data = import_json_from_user()
+    if data:
+        plot_top_artists(data)
+    else:
+        from tkinter import messagebox
+        messagebox.showerror("Error", "No data was loaded. Please try again.")
 
 def main_menu():
     window = tk.Tk()

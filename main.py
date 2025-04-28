@@ -1,3 +1,5 @@
+from tkinter import simpledialog
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -33,7 +35,6 @@ def summarize_song_dataset(csv_file_path):
     print(f"🎼 Number of Unique Genres: {len(genre_list)}")
     print(f"🎧 Genres Included: {', '.join(genre_list)}")
     print(f"🔊 Musical Attributes: {', '.join(music_attributes)}")
-
 # NOTES -----------------------------------------------------------------------------------------------
 """ The code above will show the summary of data set 'songs_normalize' 
     With significant data like genre, period, and music attributes """
@@ -96,10 +97,6 @@ def artist_year_graph(csv_file_path):
     close_button.pack(pady=10)
 
 
-
-
-
-
 #GENRE-----------------------------------------------------------------------------------------------
 def genre_year_graph(csv_file_path):
     """
@@ -151,10 +148,6 @@ def genre_year_graph(csv_file_path):
 
     close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
     close_button.pack(pady=10)
-
-
-
-
 #NOTES-------------------------------------------------------------------------------------------------------------
 '''
 First going to make a baseline for music popularity from 2000 to 2019. In this, we are specifically looking at 
@@ -162,7 +155,6 @@ First going to make a baseline for music popularity from 2000 to 2019. In this, 
     (2) most popular artist each year **logan is going to do this 4/15**
 We should have a chart showing each year's most popular artist and genre. For this, we are going to use the popularity values already provided and see which artist/genre has the greatest value.
 ''' 
-
 
 
 
@@ -211,9 +203,6 @@ def genre_popularity_over_time(csv_file_path):
 
     close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
     close_button.pack(pady=10)
-
-
-
 #NOTES-------------------------------------------------------------------------------------------------------------
 '''
 This shows the popularity of every genre over time, by adding together the popularity points from the data file. From the graph, we can see that pop is the most popular, so we'll focus on this genre when we look at other characteristics like danceability and tempo.
@@ -223,9 +212,59 @@ This shows the popularity of every genre over time, by adding together the popul
 
 
 #FAVORITE ARTIST-------------------------------------------------------------------------------------------------------------
-'''
-Here, we take into account the user's favorite artist and take in generalize all of their data. 
-'''
+def favorite_artist(csv_file_path):
+    """
+    Author: Samantha Cuenot
+    :param csv_file_path:
+    :return: table showing characteristics of the user's favorite artist
+    """
+    df = pd.read_csv(csv_file_path)
+
+    root = tk.Tk()
+    root.withdraw()
+    artist_name = simpledialog.askstring('Favorite Artist', 'Enter the name of your favorite artist')
+
+    if not artist_name:
+        return None
+
+    artist_data = df[df['artist'].str.lower() == artist_name.lower()]
+
+    if artist_data.empty:
+        error_window = tk.Toplevel()
+        error_window.title("Error")
+        error_label = tk.Label(error_window, text=f'No data found for artist {artist_name}.', font=('Helvetica', 14), fg='red')
+        error_label.pack(pady=20)
+        return
+
+    avg_popularity = artist_data['popularity'].mean()
+    avg_tempo = artist_data['tempo'].mean()
+    avg_danceability = artist_data['danceability'].mean()
+
+    genres = artist_data['genre'].dropna().str.split(', ')
+    genres = genres.explode()
+    most_common_genre = genres.mode().iloc[0] if not genres.empty else "N/A"
+
+    stats_window = tk.Toplevel()
+    stats_window.title(f"Stats for {artist_name}")
+    stats_window.geometry("450x400")
+    stats_window.configure(bg='#2e2e2e')
+
+    title = tk.Label(stats_window, text=f'{artist_name} Summary', font=('Helvetica', 18, "bold"), bg='#2e2e2e', fg='white', pady=20)
+    title.pack()
+
+    stats_text = (
+        f"Average Popularity: {round(avg_popularity, 2)}\n"
+        f"Most Frequent Genre: {most_common_genre}\n"
+        f"Average Tempo: {round(avg_tempo, 2)}\n"
+        f"Average Danceability: {round(avg_danceability, 2)}\n"
+    )
+
+    stats_label = tk.Label(stats_window, text=stats_text, font=("Helvetica", 14), bg='#2e2e2e', fg='white', justify='left', pady=20)
+    stats_label.pack(pady=10)
+
+    close_button = tk.Button(stats_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=stats_window.destroy)
+    close_button.pack(pady=10)
+
 
 
 
@@ -290,7 +329,6 @@ def genre_artist_distribution(csv_file_path):
     plt.tight_layout()
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.show()
-
 #NOTES-------------------------------------------------------------------------------------------------------------
 ''' This function analyzes music data to show two main visualizations:
 
@@ -395,9 +433,6 @@ def relationship_between_variables(csv_file_path):
     plt.ylabel('Average Popularity')
     plt.tight_layout()
     plt.show()
-
-
-
 #NOTES-------------------------------------------------------------------------------------------------------------
 ''' With valence, tempo, and liveness, predict aspects of a song's danceability and/or popularity
     - Is there a relationship any correlation between danceability and popularity? '''

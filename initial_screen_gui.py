@@ -1,229 +1,79 @@
 import tkinter as tk
-from tkinter import ttk
-from personal_data import *
-from main import *
+from tkinter import Toplevel, messagebox
+from PIL import Image, ImageTk, ImageSequence
 
+def show_about_project():
+    about_window = Toplevel()
+    about_window.title("About the Project")
+    about_window.geometry("700x800")
+    about_window.configure(bg="black")
 
-#MAIN PAGE --------------------------------------------------------------------------------------------------------------------------------------------
-def make_main_gui():
-    """
-    Author: Logan Mitchell
-    Creates the main GUI with three different buttons you can press
-    """
+    # Load the animated GIF
+    gif_path = "LogoSpotify.gif"  # <--- your renamed GIF file
+    gif = Image.open(gif_path)
+
+    frames = []
+    try:
+        for frame in ImageSequence.Iterator(gif):
+            frame = frame.convert('RGBA')
+            frames.append(ImageTk.PhotoImage(frame))
+    except EOFError:
+        pass
+
+    gif_label = tk.Label(about_window, bg="black")
+    gif_label.pack(pady=20)
+
+    def update(ind):
+        frame = frames[ind]
+        gif_label.configure(image=frame)
+        ind = (ind + 1) % len(frames)
+        about_window.after(100, update, ind)  # 100ms between frames, adjust if you want faster/slower
+
+    update(0)
+
+    # Team names
+    creators = tk.Label(about_window, text="Created by:\nLogan Mitchell, Samantha Cuenot, Minh Anh Do",
+                        font=("Helvetica", 16, "bold"), fg="white", bg="black")
+    creators.pack(pady=10)
+
+    # Project summary
+    summary = tk.Label(about_window, text="Project Summary:\nThis interactive Spotify dashboard allows users to\n"
+                                          "explore their music data with visualizations.\n\n"
+                                          "Users can view their most played artists, tracks, and genres,\n"
+                                          "as well as analyze their listening trends.",
+                       font=("Helvetica", 14), fg="white", bg="black", justify="center")
+    summary.pack(pady=10)
+
+def explore_data_sets():
+    import main  # Import your main.py file (make sure it's in the same folder)
+    main.run_main_program()
+
+def analyze_own_data():
+    messagebox.showinfo("Analyze Your Own Data", "Placeholder: Upload and analyze your own Spotify data!")
+
+def main_menu():
     window = tk.Tk()
-    window.title("Spotify Data Explorer 🎧")
-    window.geometry("320x300")
-    window.configure(bg="#2e2e2e")
-    title_label = tk.Label(
-        window,
-        text="Spotify Data Explorer 🎧",
-        font=("Helvetica", 18, "bold"),
-        bg="#2e2e2e",
-        fg="white",
-        pady=20
-    )
-    title_label.pack()
-    style = ttk.Style()
-    style.theme_use("clam")
-    style.configure(
-        "Green.TButton",
-        foreground="white",
-        background="#2e7d32",
-        font=("Helvetica", 12),
-        padding=10
-    )
-    style.map("Green.TButton", background=[('active', '#388e3c')])
-    btn_width = 25
-    btn_explore = ttk.Button(window, text="Explore Dataset", style="Green.TButton", width=btn_width, command=open_explore_dataset)
-    btn_upload = ttk.Button(window, text="Upload Your Own Data", style="Green.TButton", width=btn_width, command=upload_personal_data)
-    btn_about = ttk.Button(window, text="ℹAbout the Project", style="Green.TButton", width=btn_width, command=about_the_project)
+    window.title("Spotify Interactive Dashboard")
+    window.geometry("700x600")
+    window.configure(bg="black")
 
-    btn_explore.pack(pady=8)
-    btn_upload.pack(pady=8)
-    btn_about.pack(pady=8)
+    title_label = tk.Label(window, text="Spotify Interactive Dashboard",
+                           font=("Helvetica", 28, "bold"), fg="#1DB954", bg="black")
+    title_label.pack(pady=40)
+
+    about_button = tk.Button(window, text="About the Project", command=show_about_project,
+                              font=("Helvetica", 14), width=30, height=2, bg="#1DB954", fg="black")
+    about_button.pack(pady=10)
+
+    explore_button = tk.Button(window, text="Explore General Datasets", command=explore_data_sets,
+                                font=("Helvetica", 14), width=30, height=2, bg="#1DB954", fg="black")
+    explore_button.pack(pady=10)
+
+    analyze_button = tk.Button(window, text="Analyze Your Own Data", command=analyze_own_data,
+                                font=("Helvetica", 14), width=30, height=2, bg="#1DB954", fg="black")
+    analyze_button.pack(pady=10)
+
     window.mainloop()
 
-
-
-#ABOUT PAGE --------------------------------------------------------------------------------------------------------------------------------------------
-def about_the_project():
-    """
-    Author: Samantha Cuenot
-    Creates the page where the user can learn more about the project
-    """
-    about_window = tk.Tk()
-    about_window.title("About the Project")
-    about_window.geometry("320x300")
-    about_window.configure(bg="#2e2e2e")
-
-    title = tk.Label(
-        about_window,
-        text = "Spotify Data Explorer 🎧",
-        font=("Helvetica", 18, "bold"),
-        bg="#2e2e2e",
-        fg="white",
-        pady=20
-    )
-    title.pack()
-
-    creators_label = tk.Label(
-        about_window,
-        text = "Created by: Logan Mitchell, Samantha Cuenot, Minh Anh Do",
-        font=("Helvetica", 18, "bold"),
-        bg="#2e2e2e",
-        fg="white",
-        pady=20
-    )
-    creators_label.pack()
-
-    summary_text = (
-        "The Spotify Data Explorer is an interactive tool designed to help users explore musical trends, genres, artists, and popularity over time.\n\n"
-        "Users can either upload their own personal Spotify Data or use data on Billboard's top 100 from 2000-2019"
-    )
-
-    summary_label = tk.Label(
-        about_window,
-        text = summary_text,
-        font=("Helvetica", 11),
-        bg="#2e2e2e",
-        fg="white",
-        justify = "left",
-        padx=20
-    )
-    summary_label.pack(pady=10)
-
-    back_button = ttk.Button(
-        about_window,
-        text="Back",
-        style="Green.TButton",
-        command = about_the_project.destroy,
-        width=15
-    )
-    back_button.pack(pady=20)
-
-
-
-#EXPLORE DATASET PAGE --------------------------------------------------------------------------------------------------------------------------------------------
-def open_explore_dataset():
-    """
-    Author: Samantha Cuenot
-    Creates the page if the user selects to explore the provided dataset
-    """
-
-    def handle_year_data():
-        artist_year_graph("songs_normalize.csv")
-        genre_year_graph("songs_normalize.csv")
-
-    def handle_genre_popularity():
-        genre_popularity_over_time("songs_normalize.csv")
-
-    def handle_fav_artist():
-        favorite_artist("songs_normalize.csv")
-
-    explore_window = tk.Toplevel()
-    explore_window.title("Explore Dataset Options")
-    explore_window.geometry("400x400")
-    explore_window.configure(bg="#2e2e2e")
-    title = tk.Label(
-        explore_window,
-        text = "Choose an option",
-        font = ("Helvetica", 18, "bold"),
-        bg = "#2e2e2e",
-        fg = "white",
-        pady = 20
-    )
-    title.pack()
-    style = ttk.Style()
-    style.theme_use("clam")
-    style.configure(
-        "Green.TButton",
-        foreground="white",
-        background="#2e7d32",
-        font=("Helvetica", 12),
-        padding=10
-    )
-    style.map("Green.TButton", background=[('active', '#388e3d')])
-
-    btn_width = 50
-    btn_year_data = ttk.Button(explore_window, text="1. Look at the most popular artist and genre each year", style="Green.TButton", width=btn_width, command=handle_year_data)
-    btn_genre_pop = ttk.Button(explore_window, text="2. Look at the popularity of genres over time", style="Green.TButton", width=btn_width, command=handle_genre_popularity)
-    btn_fav_artist = ttk.Button(explore_window, text="3. Learn more about your favorite artist", style="Green.TButton", width=btn_width, command=handle_fav_artist)
-    btn_relationships = ttk.Button(explore_window, text="4. Explore relationships between song characteristics", style="Green.TButton", width=btn_width)
-    btn_summarize = ttk.Button(explore_window, text="5. Summarize the dataset", style="Green.TButton", width=btn_width)
-
-    btn_year_data.pack(pady=8)
-    btn_genre_pop.pack(pady=8)
-    btn_fav_artist.pack(pady=8)
-    btn_relationships.pack(pady=8)
-
-    back_button = ttk.Button(
-        explore_window,
-        text="Back",
-        style="Green.TButton",
-        command=explore_window.destroy,
-        width=15
-    )
-    back_button.pack(pady=20)
-
-
-
-
-#UPLOAD PERSONAL DATA PAGE --------------------------------------------------------------------------------------------------------------------------------------------
-def upload_personal_data():
-    """
-    Author: Samantha Cuenot
-    Creates the page if the user selects to upload their own personal Spotify data
-    """
-    upload_window = tk.Toplevel()
-    upload_window.title("Upload Your Spotify Data")
-    upload_window.geometry("400x300")
-    upload_window.configure(bg="#2e2e2e")
-
-    title = tk.Label(
-        upload_window,
-        text = "Upload Your Spotify JSON File",
-        font=("Helvetica", 18, "bold"),
-        bg="#2e2e2e",
-        fg="white",
-        pady=20
-    )
-    title.pack()
-
-    style = ttk.Style()
-    style.theme_use("clam")
-    style.configure(
-        "Green.TButton",
-        foreground="white",
-        background="#2e7d32",
-        font=("Helvetica", 12),
-        padding=10
-    )
-    style.map("Green.TButton", background=[('active', '#388e3d')])
-
-    def handle_upload():
-        spotify_data = import_json_from_user()
-        if spotify_data:
-            plot_top_artists(spotify_data)
-
-    upload_button = ttk.Button(
-        upload_window,
-        text="Upload & Analyze",
-        style="Green.TButton",
-        command=handle_upload,
-        width=20
-    )
-    upload_button.pack(pady=20)
-
-    back_button = ttk.Button(
-        upload_window,
-        text="Back",
-        style="Green.TButton",
-        command=upload_window.destroy,
-        width=15
-    )
-    back_button.pack(pady=20)
-
-
-
-if __name__ == "__main__":
-    make_main_gui()
+# Run the app
+main_menu()

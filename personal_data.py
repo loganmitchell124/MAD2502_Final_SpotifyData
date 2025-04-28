@@ -1,8 +1,10 @@
 import json
+import tkinter as tk
 from tkinter import filedialog
-
 import pandas as pd
 import matplotlib.pyplot as plt
+from PIL import Image, ImageTk
+
 
 
 def import_json_from_user():
@@ -53,10 +55,29 @@ def plot_top_artists(data, top_n = 10):
     artist_df.sort_values('HoursListened', ascending=False, inplace=True)
 
     top_artists = artist_df.head(top_n)
-    plt.figure(figsize=(10, 10))
-    plt.barh(top_artists['Artist'], top_artists['HoursListened'])
-    plt.xlabel('Hours Listened')
-    plt.ylabel(f'Top {top_n} Listened to Artists by You')
-    plt.gca().invert_yaxis()
-    plt.tight_layout()
-    plt.show()
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.barh(top_artists['Artist'], top_artists['HoursListened'])
+    ax.set_xlabel('Hours Listened')
+    ax.set_ylabel(f'Top {top_n} Listened to Artists by You')
+    ax.invert_yaxis()
+    fig.tight_layout()
+
+    fig.savefig('top_artists_plot.png')
+    plt.close(fig)
+
+    img_window = tk.Toplevel()
+    img_window.title("Your Spotify Top Artists")
+    img_window.geometry("850x700")
+    img_window.configure(bg="#2e2e2e")
+
+    img = Image.open("top_artists_plot.png")
+    img = img.resize((800, 600))
+    img_tk = ImageTk.PhotoImage(img)
+
+    label = tk.Label(img_window, image=img_tk, bg="#2e2e2e")
+    label.image = img_tk
+    label.pack(pady=20)
+
+    close_button = tk.Button(img_window, text="Close", bg="2e7d32", fg="white", font=("Helvetica", 12), command=img_window.destroy)
+    close_button.pack(pady=10)

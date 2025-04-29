@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Toplevel, messagebox
+from tkinter import Toplevel
 from PIL import Image, ImageTk, ImageSequence
 
 
@@ -28,7 +28,7 @@ def show_about_project():
         frame = frames[ind]
         gif_label.configure(image=frame)
         ind = (ind + 1) % len(frames)
-        about_window.after(100, update, ind)  
+        about_window.after(100, update, ind)
 
     update(0)
 
@@ -46,7 +46,7 @@ def show_about_project():
     summary.pack(pady=10)
 
 def explore_data_sets():
-    import main  # Import your mainmenu.py file (make sure it's in the same folder)
+    import main
     main.run_main_program()
 
 def analyze_own_data():

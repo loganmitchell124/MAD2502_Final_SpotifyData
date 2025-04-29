@@ -28,7 +28,7 @@ def show_about_project():
         frame = frames[ind]
         gif_label.configure(image=frame)
         ind = (ind + 1) % len(frames)
-        about_window.after(100, update, ind)  # 100ms between frames, adjust if you want faster/slower
+        about_window.after(100, update, ind)  
 
     update(0)
 
